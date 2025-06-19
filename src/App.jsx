@@ -1,16 +1,16 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
-import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
-import BookListPage from './pages/BookListPage'; // Renamed for clarity
-import PrivateRoute from './components/PrivateRoute';
-import Login from './pages/Login'; // Import dedicated Login page
-import Signup from './pages/Signup'; // Import dedicated Signup page
-import AddBookPage from './pages/AddBookPage'; // Import add book page
-import BookDetailPage from './pages/BookDetailPage'; // Import book detail page
-import './App.css'; // Import global styles
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
+import BookListPage from "./pages/BookListPage"; // Renamed for clarity
+import PrivateRoute from "./components/PrivateRoute";
+import Login from "./pages/Login"; // Import dedicated Login page
+import Signup from "./pages/Signup"; // Import dedicated Signup page
+import AddBookPage from "./pages/AddBookPage"; // Import add book page
+import BookDetailPage from "./pages/BookDetailPage"; // Import book detail page
+import "./App.css"; // Import global styles
 
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
       <Router>
         <div className="flex flex-col min-h-screen">
           <Navbar />
-          
+
           {/* Main content area */}
           <main className="flex-grow container mx-auto px-4 py-8">
             <Routes>
@@ -29,19 +29,45 @@ function App() {
               <Route path="/books/:bookId" element={<BookDetailPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
-              
               {/* Protected Routes - Require authentication */}
-              <Route element={<PrivateRoute />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/books" element={<BookListPage />} />
-                <Route path="/books/add" element={<AddBookPage />} />
-              </Route>
-              
+              {/* <Route element={<PrivateRoute />}> */}
+              <Route
+                path="/dashboard"
+                element={
+                  <PrivateRoute>
+                    <Dashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/books"
+                element={
+                  <PrivateRoute>
+                    <BookListPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/books/add"
+                element={
+                  <PrivateRoute>
+                    <AddBookPage />
+                  </PrivateRoute>
+                }
+              />
+              {/* </Route> */}
               {/* Fallback route for 404 pages */}
-              <Route path="*" element={<div className="text-center py-20"><h1 className="text-3xl font-bold">404 - Page Not Found</h1></div>} />
+              <Route
+                path="*"
+                element={
+                  <div className="text-center py-20">
+                    <h1 className="text-3xl font-bold">404 - Page Not Found</h1>
+                  </div>
+                }
+              />
             </Routes>
           </main>
-          
+
           <Footer />
         </div>
       </Router>

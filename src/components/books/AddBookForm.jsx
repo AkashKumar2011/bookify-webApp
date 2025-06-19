@@ -7,34 +7,35 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 
 const AddBookForm = ({ onSuccess }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, setUserBooks } = useAuth();
+
   const [formData, setFormData] = useState({
     title: '',
     author: '',
     description: '',
     publishedYear: '',
-    isFavorite: false
+    isFavorite: false,
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!currentUser) {
       toast.error('You must be logged in to add books');
       return;
     }
-    
-    // Validation
+
     if (!formData.title.trim() || !formData.author.trim()) {
       setError('Title and author are required');
       return;
     }
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       const bookData = {
         ...formData,
@@ -44,24 +45,24 @@ const AddBookForm = ({ onSuccess }) => {
         status: 'unread',
         rating: 0,
       };
-      
-      // Add to Firestore
-      await addDoc(collection(db, 'books'), bookData);
-      
-      // Reset form
+
+      const docRef = await addDoc(collection(db, 'books'), bookData);
+      setUserBooks((prev) => [...prev, { id: docRef.id, ...bookData }]);
+
       setFormData({
         title: '',
         author: '',
         description: '',
         publishedYear: '',
-        isFavorite: false
+        isFavorite: false,
       });
-      
+
       toast.success('Book added successfully!');
       
       if (onSuccess) onSuccess();
+
     } catch (err) {
-      console.error("Error adding book: ", err);
+      console.error('Error adding book:', err);
       setError('Failed to add book. Please try again.');
       toast.error('Failed to add book');
     } finally {
@@ -71,7 +72,7 @@ const AddBookForm = ({ onSuccess }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -81,7 +82,7 @@ const AddBookForm = ({ onSuccess }) => {
           {error}
         </div>
       )}
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-gray-700 mb-2">
@@ -96,7 +97,7 @@ const AddBookForm = ({ onSuccess }) => {
             required
           />
         </div>
-        
+
         <div>
           <label className="block text-gray-700 mb-2">
             Author <span className="text-red-500">*</span>
@@ -111,7 +112,7 @@ const AddBookForm = ({ onSuccess }) => {
           />
         </div>
       </div>
-      
+
       <div>
         <label className="block text-gray-700 mb-2">Published Year</label>
         <Input
@@ -124,7 +125,7 @@ const AddBookForm = ({ onSuccess }) => {
           placeholder="Publication year"
         />
       </div>
-      
+
       <div>
         <label className="block text-gray-700 mb-2">Description</label>
         <textarea
@@ -134,28 +135,26 @@ const AddBookForm = ({ onSuccess }) => {
           rows="3"
           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           placeholder="Brief description of the book"
-        ></textarea>
+        />
       </div>
-      
+
       <div className="flex items-center">
         <input
           type="checkbox"
           name="isFavorite"
           id="isFavorite"
           checked={formData.isFavorite}
-          onChange={(e) => setFormData(prev => ({ ...prev, isFavorite: e.target.checked }))}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, isFavorite: e.target.checked }))
+          }
           className="h-4 w-4 text-primary rounded focus:ring-primary"
         />
         <label htmlFor="isFavorite" className="ml-2 text-gray-700">
           Mark as favorite
         </label>
       </div>
-      
-      <Button 
-        type="submit" 
-        className="w-full"
-        disabled={loading}
-      >
+
+      <Button type="submit" className="w-full" disabled={loading}>
         {loading ? (
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
